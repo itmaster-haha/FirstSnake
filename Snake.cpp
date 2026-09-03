@@ -1,5 +1,13 @@
 #include <iostream>
 #include <string>
+#include <deque>
+
+enum class Direction {
+    up,
+    right,
+    down,
+    left
+};
 
 class Point {
     private:
@@ -21,7 +29,7 @@ class Point {
             return this->x;
         }
 
-        int getY {
+        int getY() {
             return this->y;
         }
 
@@ -32,34 +40,40 @@ class Point {
         void setX(int x) {
             this->x=x;
         }
-}
+
+};
 
 class Snake {
     private:
-        int size;
+        std::deque<Point> body;
+        Direction direction;
         bool isLive;
 
     public:
-        Snake(int size, bool isLive){
+        Snake(){
 
-            this->size=size;
-            this->isLive=isLive;
+            this->body.push_back(Point(7,7));
+            this->body.push_back(Point(6,7));
+            this->body.push_back(Point(5,7));
+            this->body.push_back(Point(4,7));
+            this->direction=Direction::right;
+            this->isLive=true;
         }
 
-        int getSize() const {
-            return this->size;
+        Direction getDirection() const {
+            return this->direction;
         }
 
         bool getIsLive() const {
             return isLive;
         }
 
-        void setSize() {
-            this->size+=1;
+        void setDirection(Direction direction) {
+            this->direction=direction;
         }
 
         void setLose() {
             this->isLive=false;
         }
 
-}
+};
