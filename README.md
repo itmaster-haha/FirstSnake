@@ -5,7 +5,7 @@ Status: work in progress
 
 Пока лень возиться с английским.
 Кароче тут всего один файл Snake.cpp
-1) Компилируем его: g++ Snake.cpp -o Snake
+1) Компилируем его: g++ Snake.cpp -o Snake -lsfml-graphics -lsfml-window -lsfml-system
 2) Запускаем: ./Snake
 3) Играем (Управление клавишами w - вверх, a - влево , s - вниз, d - вправо)
 
