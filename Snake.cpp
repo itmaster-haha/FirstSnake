@@ -13,6 +13,11 @@ enum class Direction {
     left
 };
 
+enum class GameState {
+    Playing,
+    GameOver
+};
+
 class Point {
     private:
         int x;
@@ -177,9 +182,10 @@ class Game {
     private:
         Snake snake;
         Field field;
+        int score;
     
     public:
-        Game() : snake(), field(snake) {
+        Game() : snake(), field(snake), score(0) {
         }
 
         Snake getSnake() {
@@ -188,6 +194,10 @@ class Game {
 
         Field getField() {
             return this->field;
+        }
+
+        int getScore() {
+            return this->score;
         }
 
         void isGameOver() {
@@ -210,6 +220,7 @@ class Game {
                 if(snake.getBody()[0] == field.getFood()) {
                     snake.grow();
                     field.newPoint(snake);
+                    this->score += 10 + this->score;
                 }
             }
         }
@@ -217,7 +228,6 @@ class Game {
         void render(sf::RenderWindow& window) {
             Point point = Point();
             sf::RectangleShape shape(sf::Vector2f(30, 30));
-            //shape.setSize(sf::Vector2f(200, 200));
             for(int i = 0; i < 15; i++) {
                 for(int j = 0; j < 15; j++) {
                     point.setXY(i, j);
@@ -229,20 +239,16 @@ class Game {
                         }
                     }
                     if(isSnake) {
-                        //std::cout << 0;
                         shape.setFillColor(sf::Color::Black);
                     }
                     else if(point == field.getFood()) {
-                        //std::cout << "*";
                         shape.setFillColor(sf::Color::Green);
                     }
                     else {
-                        //std::cout << " ";
                         shape.setFillColor(sf::Color::White);
                     }
                     window.draw(shape); 
                 }
-                //std::cout << std::endl;   
             } 
         }
 
@@ -269,43 +275,36 @@ class Game {
                 snake.setDirection(Direction::left);
             }
         }
-
-        /*void handleInput() {
-            char key;
-            std::cin >> key;
-            if(key == 'w') {
-                if(snake.getDirection() != Direction::down){
-                    snake.setDirection(Direction::up);
-                }
-            }
-            if(key == 'a') {
-                if(snake.getDirection() != Direction::right){
-                    snake.setDirection(Direction::left);
-                }
-            }
-            if(key == 's') {
-                if(snake.getDirection() != Direction::up){
-                    snake.setDirection(Direction::down);
-                }
-            }
-            if(key == 'd') {
-                if(snake.getDirection() != Direction::left){
-                    snake.setDirection(Direction::right);
-                }
-            }
-        }*/
 };
 
 int main() {
     
     srand(time(0));
     Game game = Game();
-
+    GameState state = GameState::Playing;
     sf::RenderWindow window(sf::VideoMode(450, 450), "Snake Game");
-    /*sf::RectangleShape shape(sf::Vector2f(1, 1));
-    shape.setPosition(0, 0);
-    shape.setFillColor(sf::Color::White);
-    shape.setSize(sf::Vector2f(200, 200));*/
+    sf::Font fontGameOver;
+    fontGameOver.loadFromFile("Shrifts/ha Font.ttf");
+    sf::Font fontScore;
+    fontScore.loadFromFile("/home/rey/MyWorks/First/Shrifts/GR.ttf");
+    sf::RectangleShape button1(sf::Vector2f(250, 100));
+    sf::Text text("Game Over", fontGameOver, 40);
+    text.setPosition(30, 20);
+    text.setFillColor(sf::Color::White);
+    sf::Text textScore(" ", fontScore, 40);
+    textScore.setFillColor(sf::Color::White);
+    textScore.setPosition(100, 80);
+    button1.setPosition(100, 150);
+    button1.setFillColor(sf::Color::White);
+    sf::Text text1("Repeat, please", fontScore, 40);
+    text1.setPosition(110, 170);
+    text1.setFillColor(sf::Color::Blue);
+    sf::RectangleShape button2(sf::Vector2f(250, 100));
+    button2.setPosition(100, 300);
+    button2.setFillColor(sf::Color::White);
+    sf::Text text2("Exit", fontScore, 40);
+    text2.setPosition(110, 320);
+    text2.setFillColor(sf::Color::Blue);
     while(window.isOpen()) {
         sf::Event event;
         while(window.pollEvent(event)) {
@@ -330,16 +329,48 @@ int main() {
                 }
             }
         }
-
-        if(game.getSnake().getIsLive() == true) {
-            game.update();
-        }
-
         window.clear();
-        game.render(window);
+        if(state == GameState::Playing) {
+            if(game.getSnake().getIsLive() == true) {
+                game.update();
+            }
+            else {
+                state = GameState::GameOver;
+            }
+            window.clear();
+            game.render(window);
+        }
+        else if (state == GameState::GameOver) {
+            std::string scoreText = "Your Score: " + std::to_string(game.getScore());
+            textScore.setString(scoreText);
+            window.draw(button1);
+            window.draw(button2);
+            window.draw(text);
+            window.draw(textScore);
+            window.draw(text1);
+            window.draw(text2);
+            if(event.type == sf::Event::MouseButtonPressed) {
+                if(button1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    game = Game();
+                    state = GameState::Playing;
+                    if(game.getSnake().getIsLive() == true) {
+                        game.update();
+                    }
+                    else {
+                        state = GameState::GameOver;
+                    }
+                    window.clear();
+                    game.render(window);
+                }
+                if(button2.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    window.close();
+                }
+            }
+        }
         window.display();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
+    
     /*do{
         game.update();
         game.render();
