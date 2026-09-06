@@ -4,6 +4,7 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <SFML/Graphics.hpp>
 
 enum class Direction {
     up,
@@ -213,32 +214,63 @@ class Game {
             }
         }
 
-        void render() {
+        void render(sf::RenderWindow& window) {
             Point point = Point();
+            sf::RectangleShape shape(sf::Vector2f(30, 30));
+            //shape.setSize(sf::Vector2f(200, 200));
             for(int i = 0; i < 15; i++) {
                 for(int j = 0; j < 15; j++) {
                     point.setXY(i, j);
                     bool isSnake = false;
+                    shape.setPosition(j*30, i*30);
                     for(int k = 0; k < snake.getBody().size(); k++) {
                         if(point == snake.getBody()[k]) {
                             isSnake = true;
                         }
                     }
                     if(isSnake) {
-                        std::cout << 0;
+                        //std::cout << 0;
+                        shape.setFillColor(sf::Color::Black);
                     }
                     else if(point == field.getFood()) {
-                        std::cout << "*";
+                        //std::cout << "*";
+                        shape.setFillColor(sf::Color::Green);
                     }
                     else {
-                        std::cout << " ";
+                        //std::cout << " ";
+                        shape.setFillColor(sf::Color::White);
                     }
+                    window.draw(shape); 
                 }
-                std::cout << std::endl;
-            }            
+                //std::cout << std::endl;   
+            } 
         }
 
-        void handleInput() {
+        void up(){
+            if(snake.getDirection() != Direction::down){
+                snake.setDirection(Direction::up);
+            }
+        }
+
+        void right(){
+            if(snake.getDirection() != Direction::left){
+                snake.setDirection(Direction::right);
+            }            
+        }
+        
+        void down(){
+            if(snake.getDirection() != Direction::up){
+                snake.setDirection(Direction::down);
+            }
+        }
+
+        void left(){
+            if(snake.getDirection() != Direction::right){
+                snake.setDirection(Direction::left);
+            }
+        }
+
+        /*void handleInput() {
             char key;
             std::cin >> key;
             if(key == 'w') {
@@ -261,17 +293,58 @@ class Game {
                     snake.setDirection(Direction::right);
                 }
             }
-        }
+        }*/
 };
 
 int main() {
+    
     srand(time(0));
     Game game = Game();
-    do{
+
+    sf::RenderWindow window(sf::VideoMode(450, 450), "Snake Game");
+    /*sf::RectangleShape shape(sf::Vector2f(1, 1));
+    shape.setPosition(0, 0);
+    shape.setFillColor(sf::Color::White);
+    shape.setSize(sf::Vector2f(200, 200));*/
+    while(window.isOpen()) {
+        sf::Event event;
+        while(window.pollEvent(event)) {
+            if(event.type == sf::Event::Closed) {
+                window.close();
+            }
+            if(event.type == sf::Event::KeyPressed) {
+                if(event.key.code == sf::Keyboard::W) {
+                    game.up();
+                }
+                else if(event.key.code == sf::Keyboard::D) {
+                    game.right();
+                }
+                else if(event.key.code == sf::Keyboard::S) {
+                    game.down();
+                }
+                else if(event.key.code == sf::Keyboard::A) {
+                    game.left();
+                }
+                else {
+                    std::cout << "NOT THAT";
+                }
+            }
+        }
+
+        if(game.getSnake().getIsLive() == true) {
+            game.update();
+        }
+
+        window.clear();
+        game.render(window);
+        window.display();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+    /*do{
         game.update();
         game.render();
-        game.handleInput();
+        //game.handleInput();
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    }while(game.getSnake().getIsLive() == true);
+    }while(game.getSnake().getIsLive() == true);*/
     return 0;
 }
